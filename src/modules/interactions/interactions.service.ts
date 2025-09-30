@@ -75,13 +75,10 @@ export class InteractionsService {
   }
 
   async deleteMany(ids: string[]): Promise<{ deletedCount: number }> {
-    // Get interactions to find their leadIds
     const interactions = await this.interactionModel.find({ _id: { $in: ids } }).exec();
     if (interactions.length === 0) {
       return { deletedCount: 0 };
     }
-
-    // Group interactions by leadId
     const interactionsByLead = new Map<string, any[]>();
     for (const interaction of interactions) {
       const leadId = interaction.leadId.toString();
