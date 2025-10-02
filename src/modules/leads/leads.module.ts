@@ -10,6 +10,7 @@ import { CampaignLead, CampaignLeadSchema } from 'src/schemas/campaign-lead.sche
 import { Opportunity, OpportunitySchema } from 'src/schemas/opportunity.schema';
 import { Reminder, ReminderSchema } from 'src/schemas/reminder.schema';
 import { AuthModule } from 'src/auth/auth.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import { AuthModule } from 'src/auth/auth.module';
 
     ]),
     CampaignsModule,
-    AuthModule
+    AuthModule,
+    NotificationsModule
   ], controllers: [LeadsController],
   providers: [LeadsService],
 })

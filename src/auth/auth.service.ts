@@ -4,12 +4,22 @@ import { JwtService } from '@nestjs/jwt';
 import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { User, UserDocument } from 'src/schemas/user.schema';
+import { Task, TaskDocument } from 'src/schemas/task.schema';
+import { Lead, LeadDocument } from 'src/schemas/lead.schema';
+import { Reminder, ReminderDocument } from 'src/schemas/reminder.schema';
+import { Campaign, CampaignDocument } from 'src/schemas/campaign.schema';
+import { OptinForm, OptinFormDocument } from 'src/schemas/optin-form.schema';
 import { ParsedQuery, paginateModel } from 'src/common/utils/query-parser';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(Task.name) private taskModel: Model<TaskDocument>,
+    @InjectModel(Lead.name) private leadModel: Model<LeadDocument>,
+    @InjectModel(Reminder.name) private reminderModel: Model<ReminderDocument>,
+    @InjectModel(Campaign.name) private campaignModel: Model<CampaignDocument>,
+    @InjectModel(OptinForm.name) private optinFormModel: Model<OptinFormDocument>,
     private jwtService: JwtService,
   ) {}
 
@@ -108,4 +118,61 @@ export class AuthService {
         const { password, ...userWithoutPassword } = updatedUser.toObject();
         return { success: true, message: 'Cập nhật user thành công', user: userWithoutPassword };
       }
+
+  async delete(userId: string): Promise<void> {
+    const user = await this.userModel.findById(userId);
+    if (!user) throw new NotFoundException('Không tìm thấy user');
+
+    const taskCount = await this.taskModel.countDocuments({ userId }).exec();
+    const leadCount = await this.leadModel.countDocuments({ responsibleUserId: userId }).exec();
+    const campaignCount = await this.campaignModel.countDocuments({ responsibleUserId: userId }).exec();
+    const optinFormCount = await this.optinFormModel.countDocuments({ assignedTo: userId }).exec();
+
+    if (taskCount > 0 || leadCount > 0 || campaignCount > 0 || optinFormCount > 0) {
+      const relatedData: string[] = [];
+      if (taskCount > 0) relatedData.push(`${taskCount} task(s)`);
+      if (leadCount > 0) relatedData.push(`${leadCount} lead(s)`);
+      if (campaignCount > 0) relatedData.push(`${campaignCount} campaign(s)`);
+      if (optinFormCount > 0) relatedData.push(`${optinFormCount} optin form(s)`);
+      
+      throw new BadRequestException(
+        `Không thể xóa user này vì đang liên kết với: ${relatedData.join(', ')}. Vui lòng xử lý các dữ liệu liên quan trước khi xóa user.`
+      );
+    }
+
+    await this.userModel.findByIdAndDelete(userId).exec();
+  }
+
+  async deleteMany(ids: string[]): Promise<{ deletedCount: number }> {
+    const users = await this.userModel.find({ _id: { $in: ids } }).exec();
+    if (users.length === 0) {
+      return { deletedCount: 0 };
+    }
+
+    const relatedDataChecks = await Promise.all([
+      this.taskModel.find({ userId: { $in: ids } }).exec(),
+      this.leadModel.find({ responsibleUserId: { $in: ids } }).exec(),
+      this.campaignModel.find({ responsibleUserId: { $in: ids } }).exec(),
+      this.optinFormModel.find({ assignedTo: { $in: ids } }).exec(),
+    ]);
+
+    const [tasks, leads, campaigns, optinForms] = relatedDataChecks;
+
+    if (tasks.length > 0 || leads.length > 0 || campaigns.length > 0 || optinForms.length > 0) {
+      const userIdsWithRelatedData = new Set<string>();
+      
+      tasks.forEach(task => task.userId && userIdsWithRelatedData.add(task.userId.toString()));
+      leads.forEach(lead => userIdsWithRelatedData.add(lead.responsibleUserId.toString()));
+      campaigns.forEach(campaign => userIdsWithRelatedData.add(campaign.responsibleUserId.toString()));
+      optinForms.forEach(form => userIdsWithRelatedData.add(form.assignedTo.toString()));
+
+      throw new BadRequestException(
+        `Không thể xóa các user có ID: ${Array.from(userIdsWithRelatedData).join(', ')} vì đang có dữ liệu liên quan. Vui lòng xử lý các dữ liệu liên quan trước khi xóa user.`
+      );
+    }
+
+
+    const result = await this.userModel.deleteMany({ _id: { $in: ids } }).exec();
+    return { deletedCount: result.deletedCount };
+  }
 }

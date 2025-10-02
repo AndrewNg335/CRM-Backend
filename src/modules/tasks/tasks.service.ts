@@ -49,5 +49,10 @@ export class TasksService {
   async count(filter: any) {
     return this.taskModel.countDocuments(filter).exec();
   }
+
+  async findByUserId(userId: string, parsed: ParsedQuery) {
+    const filter = { userId, ...parsed.filter };
+    return paginateModel(this.taskModel, { ...parsed, filter }, []);
+  }
   
 }

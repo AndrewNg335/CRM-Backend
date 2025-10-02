@@ -88,10 +88,8 @@ export class InteractionsService {
       interactionsByLead.get(leadId)!.push(interaction);
     }
 
-    // Delete interactions
     const result = await this.interactionModel.deleteMany({ _id: { $in: ids } }).exec();
 
-    // Update lead interaction counts and last interaction dates
     for (const [leadId, deletedInteractions] of interactionsByLead) {
       const lead = await this.leadModel.findById(leadId).exec();
       if (!lead) continue;

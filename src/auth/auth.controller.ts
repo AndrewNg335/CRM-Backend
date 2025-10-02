@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Put, Param, Req, UseGuards, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Param, Req, UseGuards, Query, Delete } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { Permissions } from './permissions.decorator';
@@ -57,5 +57,20 @@ export class AuthController {
   @Put('userUpdate/:id')
   userUpdate(@Param('id') id: string, @Body() body) {
     return this.authService.userUpdate(id, body);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Permissions(PermissionsEnum.DELETE_USER)
+  @Delete('bulk')
+  async deleteMany(@Body() body: { ids: string[] }) {
+    return this.authService.deleteMany(body.ids);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Permissions(PermissionsEnum.DELETE_USER)
+  @Delete(':id')
+  async delete(@Param('id') id: string) {
+    await this.authService.delete(id);
+    return { success: true, message: 'Xóa user thành công' };
   }
 }

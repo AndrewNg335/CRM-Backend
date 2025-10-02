@@ -9,6 +9,7 @@ import { Campaign, CampaignDocument } from 'src/schemas/campaign.schema';
 import { CampaignLead, CampaignLeadDocument } from 'src/schemas/campaign-lead.schema';
 import { Opportunity, OpportunityDocument } from 'src/schemas/opportunity.schema';
 import { Reminder, ReminderDocument } from 'src/schemas/reminder.schema';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class LeadsService {
@@ -19,14 +20,26 @@ export class LeadsService {
   @InjectModel(CampaignLead.name) private campaignLeadModel: Model<CampaignLeadDocument>,
   @InjectModel(Reminder.name) private reminderModel: Model<ReminderDocument>,
 
-  private readonly campaignsService: CampaignsService
+  private readonly campaignsService: CampaignsService,
+  private readonly notificationsService: NotificationsService
 
   ) { }
 
   async create(data: Partial<Lead>): Promise<Lead> {
     const newLead = new this.leadModel(data);
+    const savedLead = await newLead.save();
     
-    return newLead.save();
+    if (savedLead.responsibleUserId) {
+      await this.notificationsService.createNotification(
+        savedLead.responsibleUserId,
+        'Lead mới được tạo',
+        `Lead "${savedLead.name}" đã được tạo và được gán cho bạn`,
+        `/leads/edit/${savedLead._id}`
+      );
+    }
+    
+    
+    return savedLead;
   }
 
   async createFormOptinForm(
@@ -61,6 +74,14 @@ export class LeadsService {
       );
     }
 
+    if (savedLead.responsibleUserId) {
+      await this.notificationsService.createNotification(
+        savedLead.responsibleUserId,
+        'Lead mới từ Optin Form',
+        `Lead "${savedLead.name}" đã được tạo từ optin form và được gán cho bạn`,
+        `/leads/edit/${savedLead._id}`
+      );
+    }
     return savedLead;
   }
 
@@ -116,7 +137,6 @@ export class LeadsService {
   }
 
   async deleteMany(ids: string[]): Promise<{ deletedCount: number }> {
-    // Check if any leads have opportunities
     const leadsWithOpportunities = await this.opportunityModel.find({ leadId: { $in: ids } }).exec();
     if (leadsWithOpportunities.length > 0) {
       const leadIdsWithOpportunities = [...new Set(leadsWithOpportunities.map(o => o.leadId.toString()))];
@@ -125,15 +145,12 @@ export class LeadsService {
       );
     }
 
-    // Delete leads
     const result = await this.leadModel.deleteMany({ _id: { $in: ids } }).exec();
 
-    // Clean up campaign leads
     const campaignLeads = await this.campaignLeadModel.find({ leadId: { $in: ids } }).exec();
     if (campaignLeads.length > 0) {
       await this.campaignLeadModel.deleteMany({ leadId: { $in: ids } }).exec();
       
-      // Update campaign lead counts
       const campaignIds = [...new Set(campaignLeads.map(cl => cl.campaignId.toString()))];
       for (const campaignId of campaignIds) {
         const leadCount = await this.campaignLeadModel.countDocuments({ campaignId }).exec();

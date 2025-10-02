@@ -61,7 +61,6 @@ export class RoleService {
   }
 
   async deleteMany(ids: string[]): Promise<{ deletedCount: number }> {
-    // Check if any roles are being used by users
     const rolesInUse = await this.userModel.find({ role: { $in: ids } }).exec();
     if (rolesInUse.length > 0) {
       const roleIdsInUse = [...new Set(rolesInUse.map(u => u.role.toString()))];

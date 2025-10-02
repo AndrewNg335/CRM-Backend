@@ -11,7 +11,7 @@ export class TasksController {
     constructor(private readonly service: TasksService) { }
 
     @UseGuards(JwtAuthGuard)
-    @Permissions(PermissionsEnum.VIEW_TASKS)
+    @Permissions(PermissionsEnum.VIEW_TASKS_ALL)
     @Get()
     async findAll(@Query() raw: Record<string, any>) {
         const parsed = parseHttpQueryToMongo(raw, {
@@ -21,6 +21,19 @@ export class TasksController {
         });
 
         const { items, total, page, pageSize, totalPages } = await this.service.findAllParsed(parsed);
+        return { data: items, total, page, pageSize, totalPages };
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Permissions(PermissionsEnum.VIEW_TASKS_SELF)
+    @Get('user/:userId')
+    async findByUserId(@Param('userId') userId: string, @Query() raw: Record<string, any>) {
+        const parsed = parseHttpQueryToMongo(raw, {
+            textSearchFields: ['title', 'description'],
+            allowedFilterFields: ['stage', 'dueDateFrom', 'dueDateTo', 'userId'],
+            defaultSort: { dueDate: 1 },
+        });
+        const { items, total, page, pageSize, totalPages } = await this.service.findByUserId(userId, parsed);
         return { data: items, total, page, pageSize, totalPages };
     }
 

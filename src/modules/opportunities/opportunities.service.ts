@@ -108,13 +108,11 @@ export class OpportunitiesService {
   }
 
   async deleteMany(ids: string[]): Promise<{ deletedCount: number }> {
-    // Get opportunities to find their campaignIds
     const opportunities = await this.opportunityModel.find({ _id: { $in: ids } }).exec();
     if (opportunities.length === 0) {
       return { deletedCount: 0 };
     }
 
-    // Group opportunities by campaignId
     const opportunitiesByCampaign = new Map<string, any[]>();
     for (const opportunity of opportunities) {
       if (opportunity.campaignId) {
@@ -126,10 +124,8 @@ export class OpportunitiesService {
       }
     }
 
-    // Delete opportunities
     const result = await this.opportunityModel.deleteMany({ _id: { $in: ids } }).exec();
 
-    // Update campaign opportunity counts
     for (const [campaignId, deletedOpportunities] of opportunitiesByCampaign) {
       const opportunityCount = await this.opportunityModel.countDocuments({ campaignId }).exec();
       await this.campaignModel.findByIdAndUpdate(
