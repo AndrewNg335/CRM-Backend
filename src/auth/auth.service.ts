@@ -2,7 +2,7 @@ import { Injectable, BadRequestException, UnauthorizedException, NotFoundExcepti
 import { InjectModel } from '@nestjs/mongoose';
 import { JwtService } from '@nestjs/jwt';
 import { Model, Types } from 'mongoose';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { User, UserDocument } from 'src/schemas/user.schema';
 import { Task, TaskDocument } from 'src/schemas/task.schema';
 import { Lead, LeadDocument } from 'src/schemas/lead.schema';
@@ -38,6 +38,7 @@ export class AuthService {
     const exists = await this.userModel.findOne({email: data.email});
     if (exists) throw new BadRequestException('Email đã tồn tại');
 
+    if (!data.password) throw new BadRequestException('Password là bắt buộc');
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
     const user = await this.userModel.create({
