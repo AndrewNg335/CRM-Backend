@@ -2,11 +2,12 @@
     "version": 2,
     "functions": {
       "api/index.js": {
-        "runtime": "@vercel/node@2.9.20"
+        "runtime": "@vercel/node"
       }
     },
     "routes": [
       { "src": "/(.*)", "dest": "/api/index.js" }
     ]
   }
-  
+
+ 
