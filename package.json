@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build && cp dist/main.js api/index.js",
+    "build": "nest build && mkdir -p api && cp dist/main.js api/index.js",
     "build:vercel": "nest build && npm run copy:package",
     "copy:package": "cp package.json dist/",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
