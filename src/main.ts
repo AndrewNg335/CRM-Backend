@@ -4,26 +4,42 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  const configService = app.get(ConfigService);
+let app: any;
 
-  app.use(helmet());
-  
-  app.enableCors({
-    origin: configService.get<string>('FRONTEND_URL') || 'http://localhost:5173',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    credentials: true,
-  });
-  
-  app.useGlobalPipes(new ValidationPipe({ 
-    whitelist: true, 
-    forbidNonWhitelisted: true,
-    transform: true,
-  }));
-  
-  const port = configService.get<number>('PORT') || 3000;
-  await app.listen(port);
+async function bootstrap() {
+  if (!app) {
+    app = await NestFactory.create(AppModule);
+    const configService = app.get(ConfigService);
+
+    app.use(helmet());
+    
+    app.enableCors({
+      origin: configService.get('FRONTEND_URL') || 'http://localhost:5173',
+      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+      credentials: true,
+    });
+    
+    app.useGlobalPipes(new ValidationPipe({ 
+      whitelist: true, 
+      forbidNonWhitelisted: true,
+      transform: true,
+    }));
+    
+    await app.init();
+  }
+  return app;
 }
 
-bootstrap();
+export default async (req: any, res: any) => {
+  const app = await bootstrap();
+  return app.getHttpAdapter().getInstance()(req, res);
+};
+
+if (process.env.NODE_ENV !== 'production') {
+  bootstrap().then(async (app) => {
+    const configService = app.get(ConfigService);
+    const port = configService.get('PORT') || 3000;
+    await app.listen(port);
+    console.log(`Application is running on: http://localhost:${port}`);
+  });
+}

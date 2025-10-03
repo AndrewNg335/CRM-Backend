@@ -7,6 +7,8 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
+    "build:vercel": "nest build && npm run copy:package",
+    "copy:package": "cp package.json dist/",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "node --max-old-space-size=4096 ./node_modules/.bin/nest start",
     "kill": "pkill -f 'nest start' || pkill -f 'backend-crm-nestjs' || true",
