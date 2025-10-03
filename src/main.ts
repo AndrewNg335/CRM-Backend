@@ -29,11 +29,11 @@ async function bootstrap() {
   }
   return app;
 }
-
-export default async (req: any, res: any) => {
+export default async function handler(req: any, res: any) {
   const app = await bootstrap();
-  return app.getHttpAdapter().getInstance()(req, res);
-};
+  const server = app.getHttpAdapter().getInstance();
+  return server(req, res);
+}
 
 if (process.env.NODE_ENV !== 'production') {
   bootstrap().then(async (app) => {
