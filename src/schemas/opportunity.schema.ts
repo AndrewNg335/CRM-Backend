@@ -24,8 +24,6 @@ export class Opportunity {
   @Prop()
   probability: number;
 
-  @Prop()
-  leadSource: string;
 
   @Prop({ default: false })
   isClosed: boolean;

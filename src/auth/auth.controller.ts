@@ -44,7 +44,7 @@ export class AuthController {
   @Get()
   async getUsers(@Query() raw: Record<string, any>) {
     const parsed = parseHttpQueryToMongo(raw, {
-      textSearchFields: ['name', 'email'],
+      textSearchFields: ['name', 'email', 'phone'],
       allowedFilterFields: ['status', 'role'],
       defaultSort: { createdAt: -1 },
     });
