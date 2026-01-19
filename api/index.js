@@ -16,7 +16,7 @@ async function bootstrap() {
         const configService = app.get(config_1.ConfigService);
         app.use((0, helmet_1.default)());
         app.enableCors({
-            origin: configService.get('FRONTEND_URL') || 'http://localhost:5173',
+            origin: configService.get('FRONTEND_URL') || '*',
             methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
             credentials: true,
         });
@@ -34,12 +34,4 @@ async function handler(req, res) {
     const server = app.getHttpAdapter().getInstance();
     return server(req, res);
 }
-if (process.env.NODE_ENV !== 'production') {
-    bootstrap().then(async (app) => {
-        const configService = app.get(config_1.ConfigService);
-        const port = configService.get('PORT') || 3000;
-        await app.listen(port);
-        console.log(`Application is running on: http://localhost:${port}`);
-    });
-}
-//# sourceMappingURL=main.js.map
+

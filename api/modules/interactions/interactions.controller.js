@@ -14,6 +14,8 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InteractionsController = void 0;
 const common_1 = require("@nestjs/common");
+const platform_express_1 = require("@nestjs/platform-express");
+const multer_1 = require("multer");
 const query_parser_1 = require("../../common/utils/query-parser");
 const interactions_service_1 = require("./interactions.service");
 const jwt_auth_guard_1 = require("../../auth/jwt-auth.guard");
@@ -51,6 +53,19 @@ let InteractionsController = class InteractionsController {
     }
     async delete(id) {
         return this.service.delete(id);
+    }
+    async transcribeAudio(file) {
+        if (!file) {
+            throw new common_1.BadRequestException('No audio file uploaded');
+        }
+        const base64Audio = file.buffer.toString('base64');
+        return this.service.transcribeAudio(base64Audio, file.mimetype);
+    }
+    async summarize(body) {
+        if (!body.transcript || body.transcript.trim().length === 0) {
+            throw new common_1.BadRequestException('Transcript is required');
+        }
+        return this.service.summarizeTranscript(body.transcript);
     }
 };
 exports.InteractionsController = InteractionsController;
@@ -118,6 +133,57 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], InteractionsController.prototype, "delete", null);
+__decorate([
+    (0, common_1.Post)('transcribe-audio'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('audioFile', {
+        storage: (0, multer_1.memoryStorage)(),
+        limits: {
+            fileSize: 25 * 1024 * 1024,
+        },
+        fileFilter: (req, file, cb) => {
+            const allowedMimes = [
+                'audio/mp3',
+                'audio/m4a',
+                'audio/x-m4a',
+                'audio/mp4',
+                'audio/x-mp4',
+                'audio/wav',
+                'audio/x-wav',
+                'audio/ogg',
+                'audio/webm',
+                'audio/mpeg',
+                'audio/x-mpeg',
+                'audio/mpga',
+            ];
+            const fileName = file.originalname?.toLowerCase() || '';
+            const isValidMime = allowedMimes.includes(file.mimetype);
+            const isValidExtension = fileName.endsWith('.mp3') ||
+                fileName.endsWith('.m4a') ||
+                fileName.endsWith('.wav') ||
+                fileName.endsWith('.ogg') ||
+                fileName.endsWith('.webm');
+            if (isValidMime || isValidExtension) {
+                cb(null, true);
+            }
+            else {
+                cb(new common_1.BadRequestException(`Only audio files are allowed. Received: ${file.mimetype || 'unknown'}`), false);
+            }
+        },
+    })),
+    __param(0, (0, common_1.UploadedFile)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], InteractionsController.prototype, "transcribeAudio", null);
+__decorate([
+    (0, common_1.Post)('summarize'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], InteractionsController.prototype, "summarize", null);
 exports.InteractionsController = InteractionsController = __decorate([
     (0, common_1.Controller)('interactions'),
     __metadata("design:paramtypes", [interactions_service_1.InteractionsService])

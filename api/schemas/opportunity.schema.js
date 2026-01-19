@@ -21,7 +21,6 @@ let Opportunity = class Opportunity {
     opportunityStage;
     amount;
     probability;
-    leadSource;
     isClosed;
     isWon;
     nextStep;
@@ -51,10 +50,6 @@ __decorate([
     (0, mongoose_1.Prop)(),
     __metadata("design:type", Number)
 ], Opportunity.prototype, "probability", void 0);
-__decorate([
-    (0, mongoose_1.Prop)(),
-    __metadata("design:type", String)
-], Opportunity.prototype, "leadSource", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ default: false }),
     __metadata("design:type", Boolean)

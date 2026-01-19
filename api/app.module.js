@@ -22,6 +22,7 @@ const config_1 = require("@nestjs/config");
 const interactions_module_1 = require("./modules/interactions/interactions.module");
 const auth_module_1 = require("./auth/auth.module");
 const notifications_module_1 = require("./modules/notifications/notifications.module");
+const analytics_module_1 = require("./modules/analytics/analytics.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -41,7 +42,7 @@ exports.AppModule = AppModule = __decorate([
             leads_module_1.LeadsModule, tasks_module_1.TasksModule, reminders_module_1.RemindersModule,
             interactions_module_1.InteractionsModule,
             campaigns_module_1.CampaignsModule, opportunities_module_1.OpportunitiesModule,
-            optin_forms_module_1.OptinFormsModule, roles_module_1.RolesModule, auth_module_1.AuthModule, notifications_module_1.NotificationsModule
+            optin_forms_module_1.OptinFormsModule, roles_module_1.RolesModule, auth_module_1.AuthModule, notifications_module_1.NotificationsModule, analytics_module_1.AnalyticsModule
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

@@ -36,4 +36,18 @@ export declare class InteractionsController {
         deletedCount: number;
     }>;
     delete(id: string): Promise<void>;
+    transcribeAudio(file: any): Promise<{
+        success: boolean;
+        data: {
+            transcript: string;
+        };
+    }>;
+    summarize(body: {
+        transcript: string;
+    }): Promise<{
+        success: boolean;
+        data: {
+            summary: string;
+        };
+    }>;
 }

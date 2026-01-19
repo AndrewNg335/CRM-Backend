@@ -14,6 +14,7 @@ const interaction_schema_1 = require("../../schemas/interaction.schema");
 const interactions_controller_1 = require("./interactions.controller");
 const lead_schema_1 = require("../../schemas/lead.schema");
 const auth_module_1 = require("../../auth/auth.module");
+const gemini_module_1 = require("../gemini/gemini.module");
 let InteractionsModule = class InteractionsModule {
 };
 exports.InteractionsModule = InteractionsModule;
@@ -23,7 +24,8 @@ exports.InteractionsModule = InteractionsModule = __decorate([
                 { name: interaction_schema_1.Interaction.name, schema: interaction_schema_1.InteractionSchema },
                 { name: lead_schema_1.Lead.name, schema: lead_schema_1.LeadSchema },
             ]),
-            auth_module_1.AuthModule],
+            auth_module_1.AuthModule,
+            gemini_module_1.GeminiModule],
         controllers: [interactions_controller_1.InteractionsController],
         providers: [interactions_service_1.InteractionsService],
     })

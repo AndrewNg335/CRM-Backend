@@ -16,6 +16,7 @@ const lead_schema_1 = require("./lead.schema");
 let Interaction = class Interaction extends mongoose_2.Document {
     interactionType;
     detail;
+    transcript;
     leadId;
 };
 exports.Interaction = Interaction;
@@ -27,6 +28,10 @@ __decorate([
     (0, mongoose_1.Prop)(),
     __metadata("design:type", String)
 ], Interaction.prototype, "detail", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], Interaction.prototype, "transcript", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: true, type: mongoose_2.Types.ObjectId, ref: lead_schema_1.Lead.name }),
     __metadata("design:type", mongoose_2.Types.ObjectId)

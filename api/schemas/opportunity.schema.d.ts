@@ -7,7 +7,6 @@ export declare class Opportunity {
     opportunityStage: OpportunityStage;
     amount: number;
     probability: number;
-    leadSource: string;
     isClosed: boolean;
     isWon: boolean;
     nextStep: string;

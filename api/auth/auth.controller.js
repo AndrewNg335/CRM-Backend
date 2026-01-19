@@ -41,7 +41,7 @@ let AuthController = class AuthController {
     }
     async getUsers(raw) {
         const parsed = (0, query_parser_1.parseHttpQueryToMongo)(raw, {
-            textSearchFields: ['name', 'email'],
+            textSearchFields: ['name', 'email', 'phone'],
             allowedFilterFields: ['status', 'role'],
             defaultSort: { createdAt: -1 },
         });

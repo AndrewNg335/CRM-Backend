@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var InteractionsService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InteractionsService = void 0;
 const common_1 = require("@nestjs/common");
@@ -19,12 +20,16 @@ const mongoose_2 = require("mongoose");
 const interaction_schema_1 = require("../../schemas/interaction.schema");
 const lead_schema_1 = require("../../schemas/lead.schema");
 const query_parser_1 = require("../../common/utils/query-parser");
-let InteractionsService = class InteractionsService {
+const gemini_service_1 = require("../gemini/gemini.service");
+let InteractionsService = InteractionsService_1 = class InteractionsService {
     interactionModel;
     leadModel;
-    constructor(interactionModel, leadModel) {
+    geminiService;
+    logger = new common_1.Logger(InteractionsService_1.name);
+    constructor(interactionModel, leadModel, geminiService) {
         this.interactionModel = interactionModel;
         this.leadModel = leadModel;
+        this.geminiService = geminiService;
     }
     async create(data) {
         const newInteraction = new this.interactionModel(data);
@@ -103,13 +108,44 @@ let InteractionsService = class InteractionsService {
         }
         return { deletedCount: result.deletedCount };
     }
+    async transcribeAudio(base64Audio, mimeType) {
+        try {
+            const transcript = await this.geminiService.transcribeAudio(base64Audio, mimeType);
+            return {
+                success: true,
+                data: {
+                    transcript,
+                },
+            };
+        }
+        catch (error) {
+            this.logger.error('Error transcribing audio:', error);
+            throw error;
+        }
+    }
+    async summarizeTranscript(transcript) {
+        try {
+            const summary = await this.geminiService.summarizeTranscript(transcript);
+            return {
+                success: true,
+                data: {
+                    summary,
+                },
+            };
+        }
+        catch (error) {
+            this.logger.error('Error summarizing transcript:', error);
+            throw error;
+        }
+    }
 };
 exports.InteractionsService = InteractionsService;
-exports.InteractionsService = InteractionsService = __decorate([
+exports.InteractionsService = InteractionsService = InteractionsService_1 = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(interaction_schema_1.Interaction.name)),
     __param(1, (0, mongoose_1.InjectModel)(lead_schema_1.Lead.name)),
     __metadata("design:paramtypes", [mongoose_2.Model,
-        mongoose_2.Model])
+        mongoose_2.Model,
+        gemini_service_1.GeminiService])
 ], InteractionsService);
 //# sourceMappingURL=interactions.service.js.map
