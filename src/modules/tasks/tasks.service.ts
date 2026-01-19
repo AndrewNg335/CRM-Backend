@@ -19,7 +19,6 @@ export class TasksService {
   async findById(id: string) {
     return this.taskModel.findById(id).exec();
   }
-  
 
   async create(data: Partial<Task>): Promise<Task> {
     const task = new this.taskModel(data);

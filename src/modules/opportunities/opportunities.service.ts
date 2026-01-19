@@ -13,7 +13,6 @@ export class OpportunitiesService {
     @InjectModel(Campaign.name) private campaignModel: Model<CampaignDocument>,
   ) { }
 
-
   async findAllParsed(parsed: ParsedQuery) {
     return paginateModel(this.opportunityModel, parsed, ["leadId", "campaignId"]);
   }
@@ -90,7 +89,6 @@ export class OpportunitiesService {
     const count = await this.opportunityModel.countDocuments({ campaignId }).exec();
     await this.campaignModel.findByIdAndUpdate(campaignId, { opportunityCount: count }).exec();
   }
-
 
   async delete(id: string): Promise<void> {
     const opp = await this.opportunityModel.findById(id).exec();

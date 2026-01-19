@@ -45,14 +45,13 @@ import { Role } from 'src/schemas/role.schema';
         );
   
         if (!hasPermission) {
-          throw new ForbiddenException('Không có quyền truy cập');
+          throw new ForbiddenException('Bạn không có quyền truy cập');
         }
   
         request.user = user; 
         return true;
       } catch (err) {
-        throw new UnauthorizedException('Token không hợp lệ: ' + err.message);
+        throw new UnauthorizedException(err.message);
       }
     }
   }
-  

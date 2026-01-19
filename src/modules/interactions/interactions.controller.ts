@@ -1,4 +1,6 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 import { parseHttpQueryToMongo } from 'src/common/utils/query-parser';
 import { InteractionsService } from './interactions.service';
 import { Interaction } from 'src/schemas/interaction.schema';
@@ -64,5 +66,66 @@ export class InteractionsController {
   @Delete(':id')
   async delete(@Param('id') id: string) {
     return this.service.delete(id);
+  }
+
+  @Post('transcribe-audio')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(
+    FileInterceptor('audioFile', {
+      storage: memoryStorage(),
+      limits: {
+        fileSize: 25 * 1024 * 1024,
+      },
+      fileFilter: (req, file, cb) => {
+        const allowedMimes = [
+          'audio/mp3',
+          'audio/m4a',
+          'audio/x-m4a',
+          'audio/mp4',
+          'audio/x-mp4',
+          'audio/wav',
+          'audio/x-wav',
+          'audio/ogg',
+          'audio/webm',
+          'audio/mpeg',
+          'audio/x-mpeg',
+          'audio/mpga',
+        ];
+        
+        const fileName = file.originalname?.toLowerCase() || '';
+        const isValidMime = allowedMimes.includes(file.mimetype);
+        const isValidExtension = fileName.endsWith('.mp3') || 
+                                 fileName.endsWith('.m4a') || 
+                                 fileName.endsWith('.wav') || 
+                                 fileName.endsWith('.ogg') || 
+                                 fileName.endsWith('.webm');
+        
+        if (isValidMime || isValidExtension) {
+          cb(null, true);
+        } else {
+          cb(new BadRequestException(`Only audio files are allowed. Received: ${file.mimetype || 'unknown'}`), false);
+        }
+      },
+    }),
+  )
+  async transcribeAudio(@UploadedFile() file: any) {
+    if (!file) {
+      throw new BadRequestException('No audio file uploaded');
+    }
+
+    const base64Audio = file.buffer.toString('base64');
+
+    return this.service.transcribeAudio(base64Audio, file.mimetype);
+
+  }
+
+  @Post('summarize')
+  @UseGuards(JwtAuthGuard)
+  async summarize(@Body() body: { transcript: string }) {
+    if (!body.transcript || body.transcript.trim().length === 0) {
+      throw new BadRequestException('Transcript is required');
+    }
+
+    return this.service.summarizeTranscript(body.transcript);
   }
 }

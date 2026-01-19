@@ -56,7 +56,6 @@ export class TasksController {
         return { data };
     }
 
-
     @UseGuards(JwtAuthGuard)
     @Permissions(PermissionsEnum.UPDATE_TASK)
     @Put(':id')

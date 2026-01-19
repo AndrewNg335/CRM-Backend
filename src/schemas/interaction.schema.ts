@@ -15,10 +15,12 @@ export class Interaction extends Document {
   @Prop()
   detail: string;
 
+  @Prop()
+  transcript?: string; 
+
   @Prop({ required: true, type: Types.ObjectId, ref: Lead.name })
   leadId: Types.ObjectId;
 
 }
-
 
 export const InteractionSchema = SchemaFactory.createForClass(Interaction);

@@ -4,7 +4,6 @@ import { OpportunityStage } from 'src/common/enums/opportunity.enums';
 import { Lead } from './lead.schema';
 import { Campaign } from './campaign.schema';
 
-
 export type OpportunityDocument = Opportunity & Document;
 
 @Schema({ timestamps: true })
@@ -23,7 +22,6 @@ export class Opportunity {
 
   @Prop()
   probability: number;
-
 
   @Prop({ default: false })
   isClosed: boolean;

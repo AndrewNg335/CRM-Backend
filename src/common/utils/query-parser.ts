@@ -116,5 +116,3 @@ export async function paginateModel<T extends Document>(
     totalPages: Math.ceil(total / pageSize),
   };
 }
-
-

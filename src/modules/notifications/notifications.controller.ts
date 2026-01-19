@@ -57,7 +57,6 @@ export class NotificationsController {
     return { data };
   }
 
-
   @UseGuards(JwtAuthGuard)
   @Patch(':id/mark-read')
   async markAsRead(@Param('id') id: string) {

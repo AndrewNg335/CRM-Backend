@@ -11,7 +11,6 @@ export class RemindersService {
     @InjectModel(Reminder.name) private reminderModel: Model<ReminderDocument>,
   ) {}
 
-
   async findAllParsed(parsed: ParsedQuery) {
     return paginateModel(this.reminderModel, parsed, []);
   }

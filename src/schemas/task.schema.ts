@@ -22,6 +22,4 @@ export class Task {
   userId?: Types.ObjectId;
 }
 
-
-
 export const TaskSchema = SchemaFactory.createForClass(Task);

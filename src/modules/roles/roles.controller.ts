@@ -14,8 +14,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Permissions } from 'src/auth/permissions.decorator';
 import { Permissions as PermissionsEnum } from 'src/common/enums/permissions.enum';
 import { parseHttpQueryToMongo } from 'src/common/utils/query-parser';
-  
-  
+
   @Controller('roles')
   export class RoleController {
     constructor(private readonly roleService: RoleService) {}
@@ -72,4 +71,3 @@ import { parseHttpQueryToMongo } from 'src/common/utils/query-parser';
       return this.roleService.deleteRole(id);
     }
   }
-  

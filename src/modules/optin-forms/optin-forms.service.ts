@@ -10,7 +10,6 @@ export class OptinFormsService {
     @InjectModel(OptinForm.name) private readonly optinFormModel: Model<OptinFormDocument>,
   ) { }
 
-
   async findAllParsed(parsed: ParsedQuery) {
     return paginateModel(this.optinFormModel, parsed, []);
   }

@@ -5,7 +5,6 @@ import { RoleService } from './roles.service';
 import { RoleController } from './roles.controller';
 import { AuthModule } from 'src/auth/auth.module';
 
-
 @Module({
   imports: [
     MongooseModule.forFeature([

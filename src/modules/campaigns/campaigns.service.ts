@@ -6,7 +6,6 @@ import { CampaignLead, CampaignLeadDocument } from 'src/schemas/campaign-lead.sc
 import { Campaign, CampaignDocument } from 'src/schemas/campaign.schema';
 import { Opportunity, OpportunityDocument } from 'src/schemas/opportunity.schema';
 
-
 @Injectable()
 export class CampaignsService {
   constructor(
@@ -30,13 +29,11 @@ export class CampaignsService {
     return created.save();
   }
 
-
   async update(id: string, data: Partial<Campaign>): Promise<Campaign> {
     const updated = await this.campaignModel.findByIdAndUpdate(id, data, { new: true }).exec();
     if (!updated) throw new NotFoundException('Campaign not found');
     return updated;
   }
-
 
   async delete(id: string): Promise<void> {
     const result = await this.campaignModel.findByIdAndDelete(id).exec();
@@ -107,7 +104,6 @@ export class CampaignsService {
     ).exec();
 
   }
-
 
 	async findByResponsibleUser(responsibleUserId: string, parsed: ParsedQuery) {
 		const extendedParsed = {

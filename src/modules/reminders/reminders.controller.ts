@@ -51,7 +51,6 @@ export class RemindersController {
     return { data };
   }
 
-
   @UseGuards(JwtAuthGuard)
   @Permissions(PermissionsEnum.UPDATE_REMINDER)
   @Put(':id')

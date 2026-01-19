@@ -37,8 +37,7 @@ export class LeadsService {
         `/leads/edit/${savedLead._id}`
       );
     }
-    
-    
+
     return savedLead;
   }
 
@@ -84,7 +83,6 @@ export class LeadsService {
     }
     return savedLead;
   }
-
 
   async findAllParsed(parsed: ParsedQuery) {
     return paginateModel(this.leadModel, parsed, []);

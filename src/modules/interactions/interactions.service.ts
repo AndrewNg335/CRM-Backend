@@ -1,15 +1,20 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Interaction, InteractionDocument } from 'src/schemas/interaction.schema';
 import { Lead, LeadDocument } from 'src/schemas/lead.schema';
 import { ParsedQuery, paginateModel } from 'src/common/utils/query-parser';
+import { GeminiService } from '../gemini/gemini.service';
 
 @Injectable()
 export class InteractionsService {
-  constructor(@InjectModel(Interaction.name) private interactionModel: Model<InteractionDocument>, 
-  @InjectModel(Lead.name) private leadModel: Model<LeadDocument>
-) {}
+  private readonly logger = new Logger(InteractionsService.name);
+
+  constructor(
+    @InjectModel(Interaction.name) private interactionModel: Model<InteractionDocument>, 
+    @InjectModel(Lead.name) private leadModel: Model<LeadDocument>,
+    private readonly geminiService: GeminiService,
+  ) {}
 
   async create(data: Partial<Interaction>): Promise<Interaction> {
     const newInteraction = new this.interactionModel(data);
@@ -29,7 +34,6 @@ export class InteractionsService {
     const result = await this.interactionModel.find({ leadId }).sort({ createdAt: -1 }).exec();
     return result;
   }
-
 
   async findAllParsed(parsed: ParsedQuery) {
     return paginateModel(this.interactionModel, parsed, []);
@@ -110,5 +114,42 @@ export class InteractionsService {
     }
 
     return { deletedCount: result.deletedCount };
+  }
+
+  async transcribeAudio(base64Audio: string, mimeType: string) {
+    try {
+
+      const transcript = await this.geminiService.transcribeAudio(
+        base64Audio,
+        mimeType
+      );
+
+      return {
+        success: true,
+        data: {
+          transcript,
+        },
+      };
+    } catch (error) {
+      this.logger.error('Error transcribing audio:', error);
+      throw error;
+    }
+  }
+
+  async summarizeTranscript(transcript: string) {
+    try {
+
+      const summary = await this.geminiService.summarizeTranscript(transcript);
+
+      return {
+        success: true,
+        data: {
+          summary,
+        },
+      };
+    } catch (error) {
+      this.logger.error('Error summarizing transcript:', error);
+      throw error;
+    }
   }
 }

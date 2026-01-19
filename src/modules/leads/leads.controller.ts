@@ -7,7 +7,6 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Permissions } from 'src/auth/permissions.decorator';
 import { Permissions as PermissionsEnum } from 'src/common/enums/permissions.enum';
 
-
 @Controller('leads')
 export class LeadsController {
   constructor(private readonly leadsService: LeadsService) { }

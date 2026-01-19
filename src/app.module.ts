@@ -13,6 +13,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { InteractionsModule } from './modules/interactions/interactions.module';
 import { AuthModule } from './auth/auth.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 
 @Module({
   imports: [
@@ -29,7 +30,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     LeadsModule, TasksModule, RemindersModule,
     InteractionsModule,
      CampaignsModule, OpportunitiesModule, 
-     OptinFormsModule, RolesModule, AuthModule, NotificationsModule  
+     OptinFormsModule, RolesModule, AuthModule, NotificationsModule, AnalyticsModule  
   ],
   controllers: [AppController],
   providers: [AppService],

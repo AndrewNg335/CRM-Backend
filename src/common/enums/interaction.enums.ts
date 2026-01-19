@@ -4,4 +4,3 @@ export enum InteractionType {
     EMAIL = 'email',
     MEETING = 'meeting',
   }
-  

@@ -36,7 +36,6 @@ export class OptinFormsController {
     return { data: items, total, page, pageSize, totalPages };
   }
 
-
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.service.findOne(id);

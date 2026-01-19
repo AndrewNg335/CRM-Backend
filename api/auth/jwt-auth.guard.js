@@ -47,13 +47,13 @@ let JwtAuthGuard = class JwtAuthGuard {
             const userPermissions = user.role?.permissions || [];
             const hasPermission = requiredPermissions.every((p) => userPermissions.includes(p));
             if (!hasPermission) {
-                throw new common_1.ForbiddenException('Không có quyền truy cập');
+                throw new common_1.ForbiddenException('Bạn không có quyền truy cập');
             }
             request.user = user;
             return true;
         }
         catch (err) {
-            throw new common_1.UnauthorizedException('Token không hợp lệ: ' + err.message);
+            throw new common_1.UnauthorizedException(err.message);
         }
     }
 };

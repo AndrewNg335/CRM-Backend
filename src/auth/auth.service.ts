@@ -33,7 +33,6 @@ export class AuthService {
     return user;
   }
 
-
     async register(data: Partial<User>): Promise<User> {
     const exists = await this.userModel.findOne({email: data.email});
     if (exists) throw new BadRequestException('Email đã tồn tại');
@@ -82,7 +81,6 @@ export class AuthService {
         if (data.address !== undefined) updateData.address = data.address;
         if (data.status !== undefined) updateData.status = data.status;
 
-        
         if (data.password && data.password.trim() !== '') {
           updateData.password = await bcrypt.hash(data.password, 10);
         }
@@ -171,7 +169,6 @@ export class AuthService {
         `Không thể xóa các user có ID: ${Array.from(userIdsWithRelatedData).join(', ')} vì đang có dữ liệu liên quan. Vui lòng xử lý các dữ liệu liên quan trước khi xóa user.`
       );
     }
-
 
     const result = await this.userModel.deleteMany({ _id: { $in: ids } }).exec();
     return { deletedCount: result.deletedCount };
