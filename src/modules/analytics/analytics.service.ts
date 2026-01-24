@@ -5,6 +5,7 @@ import { Lead, LeadDocument } from 'src/schemas/lead.schema';
 import { Opportunity, OpportunityDocument } from 'src/schemas/opportunity.schema';
 import { Task, TaskDocument } from 'src/schemas/task.schema';
 import { Campaign, CampaignDocument } from 'src/schemas/campaign.schema';
+import { OpportunityStage } from 'src/common/enums/opportunity.enums';
 
 @Injectable()
 export class AnalyticsService {
@@ -149,15 +150,19 @@ export class AnalyticsService {
     const result = await this.opportunityModel.aggregate([
       {
         $match: {
-          isWon: true,
-          updatedAt: { $gte: sixMonthsAgo },
+          opportunityStage: OpportunityStage.CLOSED_WON,
+          closeDate: { 
+            $exists: true, 
+            $ne: null,
+            $gte: sixMonthsAgo 
+          },
         },
       },
       {
         $group: {
           _id: {
-            year: { $year: '$updatedAt' },
-            month: { $month: '$updatedAt' },
+            year: { $year: '$closeDate' },
+            month: { $month: '$closeDate' },
           },
           revenue: { $sum: '$amount' },
           count: { $sum: 1 },
@@ -193,7 +198,9 @@ export class AnalyticsService {
   private async getConversionRate() {
     const totalLeads = await this.leadModel.countDocuments();
     const totalOpportunities = await this.opportunityModel.countDocuments();
-    const wonOpportunities = await this.opportunityModel.countDocuments({ stage: 'won' });
+    const wonOpportunities = await this.opportunityModel.countDocuments({ 
+      opportunityStage: OpportunityStage.CLOSED_WON 
+    });
 
     const leadToOpportunityRate = totalLeads > 0 ? (totalOpportunities / totalLeads) * 100 : 0;
     const opportunityToWonRate = totalOpportunities > 0 ? (wonOpportunities / totalOpportunities) * 100 : 0;

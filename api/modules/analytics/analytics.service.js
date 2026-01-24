@@ -20,6 +20,7 @@ const lead_schema_1 = require("../../schemas/lead.schema");
 const opportunity_schema_1 = require("../../schemas/opportunity.schema");
 const task_schema_1 = require("../../schemas/task.schema");
 const campaign_schema_1 = require("../../schemas/campaign.schema");
+const opportunity_enums_1 = require("../../common/enums/opportunity.enums");
 let AnalyticsService = class AnalyticsService {
     leadModel;
     opportunityModel;
@@ -143,15 +144,19 @@ let AnalyticsService = class AnalyticsService {
         const result = await this.opportunityModel.aggregate([
             {
                 $match: {
-                    isWon: true,
-                    updatedAt: { $gte: sixMonthsAgo },
+                    opportunityStage: opportunity_enums_1.OpportunityStage.CLOSED_WON,
+                    closeDate: {
+                        $exists: true,
+                        $ne: null,
+                        $gte: sixMonthsAgo
+                    },
                 },
             },
             {
                 $group: {
                     _id: {
-                        year: { $year: '$updatedAt' },
-                        month: { $month: '$updatedAt' },
+                        year: { $year: '$closeDate' },
+                        month: { $month: '$closeDate' },
                     },
                     revenue: { $sum: '$amount' },
                     count: { $sum: 1 },
@@ -183,7 +188,9 @@ let AnalyticsService = class AnalyticsService {
     async getConversionRate() {
         const totalLeads = await this.leadModel.countDocuments();
         const totalOpportunities = await this.opportunityModel.countDocuments();
-        const wonOpportunities = await this.opportunityModel.countDocuments({ stage: 'won' });
+        const wonOpportunities = await this.opportunityModel.countDocuments({
+            opportunityStage: opportunity_enums_1.OpportunityStage.CLOSED_WON
+        });
         const leadToOpportunityRate = totalLeads > 0 ? (totalOpportunities / totalLeads) * 100 : 0;
         const opportunityToWonRate = totalOpportunities > 0 ? (wonOpportunities / totalOpportunities) * 100 : 0;
         return {
