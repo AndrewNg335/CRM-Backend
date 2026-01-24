@@ -137,6 +137,35 @@ let LeadsService = class LeadsService {
         const filter = { responsibleUserId, ...parsed.filter };
         return (0, query_parser_1.paginateModel)(this.leadModel, { ...parsed, filter }, []);
     }
+    async getStats() {
+        const total = await this.leadModel.countDocuments().exec();
+        const newLeads = await this.leadModel.countDocuments({ status: 'new' }).exec();
+        const contacting = await this.leadModel.countDocuments({ status: 'contacting' }).exec();
+        const converted = await this.leadModel.countDocuments({ status: 'converted' }).exec();
+        const notInterested = await this.leadModel.countDocuments({ status: 'not_interested' }).exec();
+        return {
+            total,
+            new: newLeads,
+            contacting,
+            converted,
+            not_interested: notInterested,
+        };
+    }
+    async getStatsByUser(userId) {
+        const filter = { responsibleUserId: userId };
+        const total = await this.leadModel.countDocuments(filter).exec();
+        const newLeads = await this.leadModel.countDocuments({ ...filter, status: 'new' }).exec();
+        const contacting = await this.leadModel.countDocuments({ ...filter, status: 'contacting' }).exec();
+        const converted = await this.leadModel.countDocuments({ ...filter, status: 'converted' }).exec();
+        const notInterested = await this.leadModel.countDocuments({ ...filter, status: 'not_interested' }).exec();
+        return {
+            total,
+            new: newLeads,
+            contacting,
+            converted,
+            not_interested: notInterested,
+        };
+    }
 };
 exports.LeadsService = LeadsService;
 exports.LeadsService = LeadsService = __decorate([

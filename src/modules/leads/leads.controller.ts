@@ -38,6 +38,13 @@ export class LeadsController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('stats')
+  async getStats() {
+    const stats = await this.leadsService.getStats();
+    return { data: stats };
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Permissions(PermissionsEnum.VIEW_LEADS_ALL)
   @Get()
   async findAll(@Query() raw: Record<string, any>) {
@@ -50,6 +57,14 @@ export class LeadsController {
     const { items, total, page, pageSize, totalPages } = await this.leadsService.findAllParsed(parsed);
 
     return { data: items, total, page, pageSize, totalPages };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Permissions(PermissionsEnum.VIEW_LEADS_SELF)
+  @Get('user/:userId/stats')
+  async getStatsByUser(@Param('userId') userId: string) {
+    const stats = await this.leadsService.getStatsByUser(userId);
+    return { data: stats };
   }
 
   @UseGuards(JwtAuthGuard)

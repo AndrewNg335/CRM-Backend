@@ -34,6 +34,10 @@ let LeadsController = class LeadsController {
         const lead = await this.leadsService.createFormOptinForm(optinFormId, body);
         return res.json(lead);
     }
+    async getStats() {
+        const stats = await this.leadsService.getStats();
+        return { data: stats };
+    }
     async findAll(raw) {
         const parsed = (0, query_parser_1.parseHttpQueryToMongo)(raw, {
             textSearchFields: ['name', 'email', 'phone'],
@@ -42,6 +46,10 @@ let LeadsController = class LeadsController {
         });
         const { items, total, page, pageSize, totalPages } = await this.leadsService.findAllParsed(parsed);
         return { data: items, total, page, pageSize, totalPages };
+    }
+    async getStatsByUser(userId) {
+        const stats = await this.leadsService.getStatsByUser(userId);
+        return { data: stats };
     }
     async findByResponsibleUserId(userId, raw) {
         const parsed = (0, query_parser_1.parseHttpQueryToMongo)(raw, {
@@ -90,6 +98,13 @@ __decorate([
 ], LeadsController.prototype, "createFromOptinForm", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)('stats'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], LeadsController.prototype, "getStats", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, permissions_decorator_1.Permissions)(permissions_enum_1.Permissions.VIEW_LEADS_ALL),
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)()),
@@ -97,6 +112,15 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], LeadsController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, permissions_decorator_1.Permissions)(permissions_enum_1.Permissions.VIEW_LEADS_SELF),
+    (0, common_1.Get)('user/:userId/stats'),
+    __param(0, (0, common_1.Param)('userId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], LeadsController.prototype, "getStatsByUser", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, permissions_decorator_1.Permissions)(permissions_enum_1.Permissions.VIEW_LEADS_SELF),

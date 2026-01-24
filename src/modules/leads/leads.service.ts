@@ -168,4 +168,38 @@ export class LeadsService {
     return paginateModel(this.leadModel, { ...parsed, filter }, []);
   }
 
+  async getStats(): Promise<{ total: number; new: number; contacting: number; converted: number; not_interested: number }> {
+    const total = await this.leadModel.countDocuments().exec();
+    const newLeads = await this.leadModel.countDocuments({ status: 'new' }).exec();
+    const contacting = await this.leadModel.countDocuments({ status: 'contacting' }).exec();
+    const converted = await this.leadModel.countDocuments({ status: 'converted' }).exec();
+    const notInterested = await this.leadModel.countDocuments({ status: 'not_interested' }).exec();
+
+    return {
+      total,
+      new: newLeads,
+      contacting,
+      converted,
+      not_interested: notInterested,
+    };
+  }
+
+  async getStatsByUser(userId: string): Promise<{ total: number; new: number; contacting: number; converted: number; not_interested: number }> {
+    const filter = { responsibleUserId: userId };
+    const total = await this.leadModel.countDocuments(filter).exec();
+    const newLeads = await this.leadModel.countDocuments({ ...filter, status: 'new' }).exec();
+    const contacting = await this.leadModel.countDocuments({ ...filter, status: 'contacting' }).exec();
+    const converted = await this.leadModel.countDocuments({ ...filter, status: 'converted' }).exec();
+    const notInterested = await this.leadModel.countDocuments({ ...filter, status: 'not_interested' }).exec();
+
+    return {
+      total,
+      new: newLeads,
+      contacting,
+      converted,
+      not_interested: notInterested,
+    };
+  }
+
 }
+

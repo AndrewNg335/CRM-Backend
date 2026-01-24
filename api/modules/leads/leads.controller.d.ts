@@ -11,6 +11,15 @@ export declare class LeadsController {
         phone: string;
         note?: string;
     }, res: Response): Promise<any>;
+    getStats(): Promise<{
+        data: {
+            total: number;
+            new: number;
+            contacting: number;
+            converted: number;
+            not_interested: number;
+        };
+    }>;
     findAll(raw: Record<string, any>): Promise<{
         data: (import("mongoose").Document<unknown, {}, import("src/schemas/lead.schema").LeadDocument, {}, {}> & Lead & import("mongoose").Document<unknown, any, any, Record<string, any>, {}> & {
             createdAt: Date;
@@ -24,6 +33,15 @@ export declare class LeadsController {
         page: number;
         pageSize: number;
         totalPages: number;
+    }>;
+    getStatsByUser(userId: string): Promise<{
+        data: {
+            total: number;
+            new: number;
+            contacting: number;
+            converted: number;
+            not_interested: number;
+        };
     }>;
     findByResponsibleUserId(userId: string, raw: Record<string, any>): Promise<{
         data: (import("mongoose").Document<unknown, {}, import("src/schemas/lead.schema").LeadDocument, {}, {}> & Lead & import("mongoose").Document<unknown, any, any, Record<string, any>, {}> & {

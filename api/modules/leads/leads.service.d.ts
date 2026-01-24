@@ -64,4 +64,18 @@ export declare class LeadsService {
         pageSize: number;
         totalPages: number;
     }>;
+    getStats(): Promise<{
+        total: number;
+        new: number;
+        contacting: number;
+        converted: number;
+        not_interested: number;
+    }>;
+    getStatsByUser(userId: string): Promise<{
+        total: number;
+        new: number;
+        contacting: number;
+        converted: number;
+        not_interested: number;
+    }>;
 }
